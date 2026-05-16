@@ -1,0 +1,10 @@
+AGENTS.md
+project-spec.md
+.memroy.local.md
+*.plan.md
+.env
+.env.local
+backend/.env
+backend/.env.local
+
+.vscode/*

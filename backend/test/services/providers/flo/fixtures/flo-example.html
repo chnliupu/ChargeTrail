@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FLO</title>
+  </head>
+  <body>
+    <div id="layout-wrapper">
+      <div id="layout-main-container">
+        <div id="layout-main" class="account-wrapper">
+          <div id="account-main">
+            <div class="account-nav navbar navbar-default">
+              <div id="account-nav-collapse" class="collapse navbar-collapse">
+                <a active-menu-item class="active" href="/SessionHistory">
+                  <span>History</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="account-body">
+              <div class="zone zone-content">
+                <form action="/SessionHistory" id="sessionhistory-filter" method="post">
+                  <h2>History</h2>
+                  <div id="card-select">
+                    <select id="SelectedDevice" name="SelectedDevice">
+                      <option value="AllCards">On the go charging</option>
+                      <option value="Card:00000000-0000-0000-0000-000000000001">
+                        Test Mobile Application
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="row">
+                    <div class="form-group input-daterange DateRange">
+                      <input
+                        id="DateRange_From"
+                        name="DateRange.From"
+                        type="text"
+                        value="2000-01-01"
+                      />
+                      <span class="input-group-addon">to</span>
+                      <input id="DateRange_To" name="DateRange.To" type="text" value="2000-01-31" />
+                    </div>
+                    <button type="submit" class="btn btn-block btn-primary">Apply</button>
+                  </div>
+
+                  <input
+                    name="__RequestVerificationToken"
+                    type="hidden"
+                    value="TEST_REQUEST_VERIFICATION_TOKEN_AUTHENTICATED"
+                  />
+                </form>
+
+                <div class="list-group" id="sessionhistory">
+                  <div class="session-count">
+                    <div class="left">There is one charging session for this period.</div>
+                  </div>
+
+                  <div class="session-info success">
+                    <div class="left">
+                      <div class="date">Jan 1, 2000</div>
+                      <div class="park">Example Charging Site</div>
+                      <div class="duration-cost">
+                        <span class="duration">1h 2m</span>
+                        <span class="cost">$1.23 (CAD)</span>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <div class="energy">5.7 kWh</div>
+                      <div class="station">STATION-TEST-001</div>
+                      <div class="card">
+                        Test Mobile Application
+                        <small class="cardnumber">TEST-CARD-0001</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form
+                  action="/SessionHistory/SessionHistoryXML"
+                  id="sessionhistory-download-xml"
+                  method="post"
+                >
+                  <input
+                    id="DateRange_From"
+                    name="DateRange.From"
+                    type="hidden"
+                    value="2000-01-01"
+                  />
+                  <input id="DateRange_To" name="DateRange.To" type="hidden" value="2000-01-31" />
+                  <input id="SelectedDevice" name="SelectedDevice" type="hidden" value="" />
+                  <input
+                    name="__RequestVerificationToken"
+                    type="hidden"
+                    value="TEST_REQUEST_VERIFICATION_TOKEN_AUTHENTICATED"
+                  />
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

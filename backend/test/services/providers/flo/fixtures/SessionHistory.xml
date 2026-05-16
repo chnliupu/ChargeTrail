@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Worksheet ss:Name="SessionHistory">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">Start date</Data></Cell>
+        <Cell><Data ss:Type="String">End date</Data></Cell>
+        <Cell><Data ss:Type="String">Card number</Data></Cell>
+        <Cell><Data ss:Type="String">Park name</Data></Cell>
+        <Cell><Data ss:Type="String">Charging station name</Data></Cell>
+        <Cell><Data ss:Type="String">Duration</Data></Cell>
+        <Cell><Data ss:Type="String">Energy transferred (Wh)</Data></Cell>
+        <Cell><Data ss:Type="String">Original cost</Data></Cell>
+        <Cell><Data ss:Type="String">Original currency</Data></Cell>
+        <Cell><Data ss:Type="String">Total cost</Data></Cell>
+        <Cell><Data ss:Type="String">Currency</Data></Cell>
+      </Row>
+      <Row>
+        <Cell><Data ss:Type="String">2000-01-01 00:00:00</Data></Cell>
+        <Cell><Data ss:Type="String">2000-01-01 01:02:55</Data></Cell>
+        <Cell><Data ss:Type="String">TEST-CARD-0001</Data></Cell>
+        <Cell><Data ss:Type="String">Example Charging Site</Data></Cell>
+        <Cell><Data ss:Type="String">STATION-TEST-001</Data></Cell>
+        <Cell><Data ss:Type="String">1:02:55</Data></Cell>
+        <Cell><Data ss:Type="Number">5715</Data></Cell>
+        <Cell><Data ss:Type="Number">1.23</Data></Cell>
+        <Cell><Data ss:Type="String">CAD</Data></Cell>
+        <Cell><Data ss:Type="Number">1.23</Data></Cell>
+        <Cell><Data ss:Type="String">CAD</Data></Cell>
+      </Row>
+      <Row>
+        <Cell><Data ss:Type="String">2000-01-05 12:00:00</Data></Cell>
+        <Cell><Data ss:Type="String">2000-01-05 12:30:00</Data></Cell>
+        <Cell><Data ss:Type="String">TEST-CARD-0002</Data></Cell>
+        <Cell><Data ss:Type="String">Example Charging Site Two</Data></Cell>
+        <Cell><Data ss:Type="String">STATION-TEST-002</Data></Cell>
+        <Cell><Data ss:Type="String">0:30:00</Data></Cell>
+        <Cell><Data ss:Type="Number">2400</Data></Cell>
+        <Cell><Data ss:Type="Number">0.75</Data></Cell>
+        <Cell><Data ss:Type="String">CAD</Data></Cell>
+        <Cell><Data ss:Type="Number">0.75</Data></Cell>
+        <Cell><Data ss:Type="String">CAD</Data></Cell>
+      </Row>
+    </Table>
+  </Worksheet>
+</Workbook>

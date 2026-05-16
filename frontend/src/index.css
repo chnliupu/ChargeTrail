@@ -1,0 +1,183 @@
+@import 'tailwindcss';
+@import './styles/animations.css';
+
+/* ----- Runtime themes (dark default, light opt-in via [data-theme='light']) ----- */
+
+:root,
+[data-theme='dark'] {
+  --es-bg: #0d1520;
+  --es-bg-card: #111c2d;
+  --es-bg-card-hover: #162338;
+  --es-sidebar: #0b1219;
+  --es-border: #1c2e45;
+  --es-border-light: #243549;
+  --es-text: #e2eaf4;
+  --es-text-muted: #6b8aaa;
+  --es-text-dim: #3d5a7a;
+  --es-accent: #38bdf8;
+  --es-accent-dim: #0c2d45;
+  --es-accent-green: #34d399;
+  --es-accent-amber: #fbbf24;
+  --es-error: #f87171;
+  --es-success: #34d399;
+  --es-warning: #fbbf24;
+  --es-primary-foreground: #0d1520;
+  --sidebar: var(--es-sidebar);
+  --sidebar-foreground: var(--es-text);
+  --sidebar-primary: var(--es-accent);
+  --sidebar-primary-foreground: var(--es-primary-foreground);
+  --sidebar-accent: var(--es-bg-card-hover);
+  --sidebar-accent-foreground: var(--es-text);
+  --sidebar-border: var(--es-border);
+  --sidebar-ring: var(--es-accent);
+}
+
+[data-theme='light'] {
+  --es-bg: #f4f6f9;
+  --es-bg-card: #ffffff;
+  --es-bg-card-hover: #f0f4f8;
+  --es-sidebar: #ffffff;
+  --es-border: #e4e9f0;
+  --es-border-light: #eef1f6;
+  --es-text: #111928;
+  --es-text-muted: #4b6180;
+  --es-text-dim: #94a3b8;
+  --es-accent: #0284c7;
+  --es-accent-dim: #e0f2fe;
+  --es-accent-green: #059669;
+  --es-accent-amber: #d97706;
+  --es-error: #dc2626;
+  --es-success: #059669;
+  --es-warning: #d97706;
+  --es-primary-foreground: #f4f6f9;
+  --sidebar: var(--es-sidebar);
+  --sidebar-foreground: var(--es-text);
+  --sidebar-primary: var(--es-accent);
+  --sidebar-primary-foreground: var(--es-primary-foreground);
+  --sidebar-accent: var(--es-bg-card-hover);
+  --sidebar-accent-foreground: var(--es-text);
+  --sidebar-border: var(--es-border);
+  --sidebar-ring: var(--es-accent);
+}
+
+/* ----- Tailwind 4 theme tokens (drives utility generation) ----- */
+
+@theme inline {
+  /* App-specific tokens (status colors, neutrals not covered by shadcn) */
+  --color-bg: var(--es-bg);
+  --color-card-hover: var(--es-bg-card-hover);
+  --color-sidebar: var(--sidebar);
+  --color-border-light: var(--es-border-light);
+  --color-text: var(--es-text);
+  --color-text-muted: var(--es-text-muted);
+  --color-text-dim: var(--es-text-dim);
+  --color-accent-dim: var(--es-accent-dim);
+  --color-accent-green: var(--es-accent-green);
+  --color-accent-amber: var(--es-accent-amber);
+  --color-error: var(--es-error);
+  --color-success: var(--es-success);
+  --color-warning: var(--es-warning);
+
+  /* shadcn/ui semantic palette (canonical names, primitives reference these) */
+  --color-background: var(--es-bg);
+  --color-foreground: var(--es-text);
+  --color-card: var(--es-bg-card);
+  --color-card-foreground: var(--es-text);
+  --color-popover: var(--es-bg-card);
+  --color-popover-foreground: var(--es-text);
+  --color-primary: var(--es-accent);
+  --color-primary-foreground: var(--es-primary-foreground);
+  --color-secondary: var(--es-bg-card);
+  --color-secondary-foreground: var(--es-text-muted);
+  --color-muted: var(--es-bg-card-hover);
+  --color-muted-foreground: var(--es-text-muted);
+  --color-accent: var(--es-bg-card-hover);
+  --color-accent-foreground: var(--es-text);
+  --color-destructive: var(--es-error);
+  --color-destructive-foreground: var(--es-bg);
+  --color-border: var(--es-border);
+  --color-input: var(--es-border);
+  --color-ring: var(--es-accent);
+
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --shadow-login: 0 16px 48px rgba(0, 0, 0, 0.4);
+
+  --radius: 0.5rem;
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ----- Base resets / globals ----- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--color-border);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--es-bg);
+  color: var(--es-text);
+  font-family:
+    'DM Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  button,
+  input {
+    font: inherit;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--es-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--es-border-light);
+}
+
+/* ----- Custom utilities (Tailwind 4 @utility) ----- */
+
+@utility bg-login-grid {
+  background-image:
+    linear-gradient(var(--es-border-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--es-border-light) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@utility bg-logo-tile {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--es-accent) 22%, transparent),
+    color-mix(in srgb, var(--es-accent-green) 18%, transparent)
+  );
+}

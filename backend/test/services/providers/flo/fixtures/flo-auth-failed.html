@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FLO</title>
+  </head>
+  <body>
+    <div id="layout-wrapper">
+      <div id="layout-main-container">
+        <div id="layout-main" class="guest-wrapper">
+          <div id="guest-main">
+            <div class="guest-body">
+              <form
+                action="/Account/Login?returnUrl=%2FSessionHistory"
+                id="account-login"
+                method="post"
+              >
+                <fieldset>
+                  <div class="form-group">
+                    <label class="control-label" for="Username">Email address</label>
+                    <div class="control-input">
+                      <input
+                        id="Username"
+                        name="Username"
+                        placeholder="Enter email"
+                        type="text"
+                        value=""
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="control-label" for="Password">Password</label>
+                    <div class="control-input">
+                      <input
+                        id="Password"
+                        name="Password"
+                        placeholder="Enter password"
+                        type="password"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-lg btn-primary">Sign In</button>
+                  </div>
+                </fieldset>
+                <input
+                  name="__RequestVerificationToken"
+                  type="hidden"
+                  value="TEST_REQUEST_VERIFICATION_TOKEN_LOGIN"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
