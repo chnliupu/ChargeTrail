@@ -1,0 +1,93 @@
+# Development stack for ChargeTrail.
+#
+# Hot-reloads when source files change on the host (bind-mounted into the
+# containers) and exposes the Node inspector port for backend debugging.
+#
+# Run from this directory:
+#   docker compose -f docker-compose.dev.yml up
+#
+# Env variables are inlined as examples below. Defaults match the host-dev
+# .env files; comment-out / uncomment lines as needed.
+
+services:
+  backend:
+    image: node:24-bookworm-slim
+    working_dir: /app/backend
+    # Install native build deps for better-sqlite3 on first boot, then run
+    # tsx in watch mode with the inspector bound to all interfaces so the
+    # host can attach (`--inspect=0.0.0.0:9229`). package.json's `dev`
+    # script binds to 127.0.0.1 which is unreachable from the host.
+    command: >
+      sh -c "apt-get update
+      && apt-get install -y --no-install-recommends python3 make g++
+      && rm -rf /var/lib/apt/lists/*
+      && npm install
+      && npx tsx watch --inspect=0.0.0.0:9229 src/index.ts"
+    environment:
+      # --- runtime mode ---
+      NODE_ENV: development
+
+      # --- listen port (inside the container) ---
+      BACKEND_PORT: "3000"
+
+      # --- SQLite location; matches the named volume mount below ---
+      DB_PATH: /app/backend/data
+
+      # --- CORS / Better Auth allowed origin ---
+      FRONTEND_ORIGIN: http://localhost:3001
+
+      # --- Better Auth signing secret. Fixed dev-only value so sessions
+      # survive container restarts; do NOT reuse in production. ---
+      BETTER_AUTH_SECRET: dev-only-secret-not-for-production-use
+
+      # --- Better Auth base URL; defaults to http://localhost:3000 ---
+      # BETTER_AUTH_URL: http://localhost:3000
+
+      # --- Swagger UI at /api-docs; useful in dev ---
+      SWAGGER_ENABLED: "true"
+
+      # --- Pino log level: trace|debug|info|warn|error|fatal|silent ---
+      # LOG_LEVEL: debug
+
+      # --- First-run admin seed (uncomment to auto-provision an admin) ---
+      # ADMIN_USERNAME: admin
+      # ADMIN_EMAIL: admin@example.com
+      # ADMIN_PASSWORD: ""
+    volumes:
+      - ../backend:/app/backend
+      - backend-node-modules:/app/backend/node_modules
+      - chargetrail-data-dev:/app/backend/data
+    ports:
+      - "3000:3000"   # API
+      - "127.0.0.1:9229:9229" # Node inspector (attach VS Code or chrome://inspect)
+
+  frontend:
+    image: node:24-bookworm-slim
+    working_dir: /app/frontend
+    # --host 0.0.0.0 so Vite's dev server (and HMR websocket) is reachable
+    # from the host browser, not just from inside the container.
+    command: >
+      sh -c "npm install
+      && npm run dev -- --host 0.0.0.0"
+    environment:
+      # --- Vite dev-proxy upstream for /api (compose network alias) ---
+      VITE_API_ORIGIN: http://backend:3000
+
+      # --- Vite dev-server port (read by vite.config.ts) ---
+      FRONTEND_PORT: "3001"
+
+      # --- enable file-watcher polling if HMR misses events on your host
+      # filesystem (e.g. WSL2 from /mnt/, some macOS bind-mounts) ---
+      # CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ../frontend:/app/frontend
+      - frontend-node-modules:/app/frontend/node_modules
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+volumes:
+  backend-node-modules:
+  frontend-node-modules:
+  chargetrail-data-dev:

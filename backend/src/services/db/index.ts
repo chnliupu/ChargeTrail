@@ -13,13 +13,18 @@ let sqlite: Database.Database | undefined;
 let dbInstance: AppDb | undefined;
 
 const MIGRATIONS_FOLDER = join(dirname(fileURLToPath(import.meta.url)), 'migrations');
+const DB_FILE_NAME = 'chargetrail.db';
 
+/**
+ * Initializes the SQLite database connection, runs migrations, and stores the shared handle.
+ */
 export function initDb(): AppDb {
-  const path = resolve(process.env.DB_PATH ?? './data/electric-stats.db');
-  mkdirSync(dirname(path), {
+  const dbFolder = resolve(process.env.DB_PATH ?? './data');
+  mkdirSync(dbFolder, {
     recursive: true,
   });
 
+  const path = join(dbFolder, DB_FILE_NAME);
   const handle = new Database(path);
   handle.pragma('journal_mode = WAL');
   handle.pragma('foreign_keys = ON');
@@ -42,6 +47,9 @@ export function initDb(): AppDb {
   return orm;
 }
 
+/**
+ * Returns the initialized Drizzle database client.
+ */
 export function getDb(): AppDb {
   if (!dbInstance) {
     throw new Error('db not initialized; call initDb() first');
@@ -49,6 +57,9 @@ export function getDb(): AppDb {
   return dbInstance;
 }
 
+/**
+ * Returns the initialized raw better-sqlite3 handle.
+ */
 export function getSqlite(): Database.Database {
   if (!sqlite) {
     throw new Error('db not initialized; call initDb() first');

@@ -1,6 +1,6 @@
 {
-  "name": "electric-stats-backend",
-  "version": "0.1.0",
+  "name": "chargetrail-backend",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "dist/index.js",

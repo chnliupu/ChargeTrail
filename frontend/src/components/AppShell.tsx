@@ -176,7 +176,7 @@ function AppSidebar() {
                     data-sidebar="menu-button"
                     data-size="lg"
                     data-active={isAvatarMenuRoute}
-                    className="peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md px-2.5 py-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] hover:bg-card-hover focus-visible:ring-2 data-[active=true]:bg-primary/10 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!"
+                    className="peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md px-2.5 py-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] duration-[650ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-card-hover focus-visible:ring-2 data-[active=true]:bg-primary/10 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!"
                   >
                     <Avatar className="size-[30px] border border-border">
                       <AvatarImage

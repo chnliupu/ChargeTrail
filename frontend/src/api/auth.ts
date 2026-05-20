@@ -59,7 +59,11 @@ function getApiOrigin(): string {
 function getApiBaseUrl(): string {
   // Vite's dev proxy uses VITE_API_ORIGIN as the upstream target and avoids
   // browser CORS preflights against Better Auth's generated routes.
-  return import.meta.env.DEV ? '' : getApiOrigin();
+  if (import.meta.env.DEV) return '';
+  // Empty VITE_API_ORIGIN at build time -> emit relative /api/* URLs so a
+  // reverse proxy (e.g. the nginx in the Docker frontend image) can route
+  // them on the same origin.
+  return import.meta.env.VITE_API_ORIGIN ? getApiOrigin() : '';
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {

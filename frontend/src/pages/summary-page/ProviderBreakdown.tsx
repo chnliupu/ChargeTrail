@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Cell, Pie, PieChart, Tooltip } from 'recharts';
+import { useMemo, useState } from 'react';
+import { Cell, Label, Pie, PieChart, Tooltip } from 'recharts';
 import type { TooltipContentProps } from 'recharts';
 import type { ConnectorWithCount } from '../../api/connectors';
 import { Card } from '../../components/ui/card';
@@ -25,6 +25,33 @@ const COLOR_PALETTE: ReadonlyArray<string> = [
   '#f4a261', // tangerine
   '#2ec4b6', // teal
   '#e76f51', // sienna
+];
+
+/** Selectable metric driving slice size + the value shown in the legend. */
+type MetricKey = 'sessions' | 'energy' | 'cost';
+
+type MetricDef = {
+  key: MetricKey;
+  label: string;
+  /** Numeric `Slice` field this metric maps to. */
+  dataKey: 'count' | 'kwh' | 'cost';
+  fmt: (value: number) => string;
+};
+
+const METRICS: ReadonlyArray<MetricDef> = [
+  { key: 'sessions', label: 'Sessions', dataKey: 'count', fmt: (v) => `${v}` },
+  {
+    key: 'energy',
+    label: 'Energy',
+    dataKey: 'kwh',
+    fmt: (v) => `${v.toFixed(1)} kWh`,
+  },
+  {
+    key: 'cost',
+    label: 'Cost',
+    dataKey: 'cost',
+    fmt: (v) => `$${v.toFixed(2)}`,
+  },
 ];
 
 type ProviderBreakdownProps = {
@@ -89,7 +116,7 @@ function buildSlices(
   });
 }
 
-/** Pie chart breakdown of sessions by connector with hover tooltip + legend. */
+/** Donut breakdown of connectors with a metric toggle, hover sync + tooltip. */
 export function ProviderBreakdown({
   rows,
   connectors,
@@ -98,6 +125,17 @@ export function ProviderBreakdown({
   const slices = useMemo(
     () => buildSlices(rows, connectors),
     [rows, connectors],
+  );
+  const [metricKey, setMetricKey] = useState<MetricKey>('sessions');
+  // Slice currently hovered (in the donut OR the legend); drives the dim
+  // emphasis, the legend highlight, and the dynamic center label.
+  const [activeIndex, setActiveIndex] = useState<number>();
+
+  const metric = METRICS.find((m) => m.key === metricKey) ?? METRICS[0];
+  const dataKey = metric.dataKey;
+  const total = useMemo(
+    () => slices.reduce((sum, s) => sum + s[dataKey], 0),
+    [slices, dataKey],
   );
 
   // ChartConfig drives the shadcn theming for chart segments.
@@ -111,7 +149,42 @@ export function ProviderBreakdown({
 
   return (
     <Card className="p-5">
-      <h3 className="mb-4 text-sm font-semibold text-text">By connector</h3>
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-text">By connector</h3>
+        <div className="flex gap-1.5">
+          {METRICS.map(({ key, label }) => {
+            const active = metricKey === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setMetricKey(key)}
+                aria-pressed={active}
+                className="h-7 rounded-md border px-2.5 text-[11px] transition-colors"
+                style={
+                  active
+                    ? {
+                        color: 'var(--es-accent)',
+                        borderColor: 'var(--es-accent)',
+                        background:
+                          'color-mix(in srgb, var(--es-accent) 15%, transparent)',
+                      }
+                    : undefined
+                }
+              >
+                {active ? (
+                  label
+                ) : (
+                  <span className="text-text-muted hover:text-text">
+                    {label}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <Spinner size={22} className="text-text-muted" />
@@ -119,11 +192,11 @@ export function ProviderBreakdown({
       ) : slices.length === 0 ? (
         <p className="text-sm text-text-muted">No data</p>
       ) : (
-        // Flex row so the legend sits at the top-right of the pie chart.
-        <div className="flex items-start gap-4">
+        // Vertical stack: centered donut on top, legend pills below.
+        <div className="flex flex-col items-center gap-5">
           <ChartContainer
             config={config}
-            className="aspect-square max-h-[260px] min-w-0 flex-1"
+            className="mx-auto aspect-square max-h-[220px] w-full max-w-[220px]"
           >
             <PieChart>
               <Tooltip
@@ -136,51 +209,162 @@ export function ProviderBreakdown({
               />
               <Pie
                 data={slices}
-                dataKey="count"
+                dataKey={dataKey}
                 nameKey="key"
-                innerRadius="55%"
+                innerRadius="58%"
                 outerRadius="85%"
                 paddingAngle={2}
                 stroke="var(--es-bg-card)"
                 strokeWidth={2}
+                onMouseEnter={(_, i) => setActiveIndex(i)}
+                onMouseLeave={() => setActiveIndex(undefined)}
               >
-                {slices.map((s) => (
-                  <Cell key={s.key} fill={s.fill} />
+                {slices.map((s, i) => (
+                  <Cell
+                    key={s.key}
+                    fill={s.fill}
+                    fillOpacity={
+                      activeIndex === undefined || activeIndex === i ? 1 : 0.3
+                    }
+                    style={{ transition: 'fill-opacity 0.12s' }}
+                  />
                 ))}
+                <Label
+                  content={({ viewBox }) => {
+                    if (
+                      !viewBox ||
+                      !('cx' in viewBox) ||
+                      viewBox.cx == null ||
+                      viewBox.cy == null
+                    ) {
+                      return null;
+                    }
+                    const { cx, cy } = viewBox;
+                    const hovered =
+                      activeIndex != null ? slices[activeIndex] : undefined;
+                    const big = hovered
+                      ? total > 0
+                        ? `${((hovered[dataKey] / total) * 100).toFixed(0)}%`
+                        : '0%'
+                      : `${slices.length}`;
+                    const small = hovered
+                      ? hovered.providerLabel
+                      : slices.length === 1
+                        ? 'connector'
+                        : 'connectors';
+                    return (
+                      <text
+                        x={cx}
+                        y={cy}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                      >
+                        <tspan
+                          x={cx}
+                          y={cy - 6}
+                          className="text-lg font-bold"
+                          fill={hovered ? hovered.fill : 'var(--es-text)'}
+                        >
+                          {big}
+                        </tspan>
+                        <tspan
+                          x={cx}
+                          y={cy + 14}
+                          className="text-[11px]"
+                          fill="var(--es-text-muted)"
+                        >
+                          {small}
+                        </tspan>
+                      </text>
+                    );
+                  }}
+                />
               </Pie>
             </PieChart>
           </ChartContainer>
-          <ConnectorLegend slices={slices} />
+          <ConnectorLegend
+            slices={slices}
+            metric={metric}
+            total={total}
+            activeIndex={activeIndex}
+            onActiveChange={setActiveIndex}
+          />
         </div>
       )}
     </Card>
   );
 }
 
-/** Vertically stacked legend pinned to the top-right of the pie. */
-function ConnectorLegend({ slices }: { slices: readonly Slice[] }) {
+type ConnectorLegendProps = {
+  slices: readonly Slice[];
+  metric: MetricDef;
+  total: number;
+  activeIndex: number | undefined;
+  onActiveChange: (index: number | undefined) => void;
+};
+
+/** Full-width legend pills (one per connector), hover-synced with the donut. */
+function ConnectorLegend({
+  slices,
+  metric,
+  total,
+  activeIndex,
+  onActiveChange,
+}: ConnectorLegendProps) {
   return (
-    <ul className="flex shrink-0 flex-col gap-2 pt-1 text-xs">
-      {slices.map((s) => (
-        <li key={s.key} className="flex items-center gap-2">
-          <span
-            className="size-2.5 shrink-0 rounded-sm"
-            style={{ background: s.fill }}
-            aria-hidden="true"
-          />
-          <ProviderLogo
-            provider={s.providerId}
-            size={14}
-            className="shrink-0 text-text-muted"
-          />
-          <span className="text-text">
-            {s.providerLabel}
-            {s.showAccountInLegend && s.providerUsername !== '—' ? (
-              <span className="text-text-muted"> · {s.providerUsername}</span>
-            ) : null}
-          </span>
-        </li>
-      ))}
+    <ul className="flex w-full flex-col gap-2 text-xs">
+      {slices.map((s, i) => {
+        const value = s[metric.dataKey];
+        const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+        const active = activeIndex === i;
+        return (
+          <li
+            key={s.key}
+            onMouseEnter={() => onActiveChange(i)}
+            onMouseLeave={() => onActiveChange(undefined)}
+            className={
+              'flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors ' +
+              (active
+                ? 'text-text'
+                : 'border-border/40 bg-card-hover/30 text-text-muted')
+            }
+            style={
+              active
+                ? {
+                    background: `color-mix(in srgb, ${s.fill} 12%, transparent)`,
+                    borderColor: `color-mix(in srgb, ${s.fill} 35%, transparent)`,
+                  }
+                : undefined
+            }
+          >
+            <span
+              className="size-2.5 shrink-0 rounded-sm"
+              style={{ background: s.fill }}
+              aria-hidden="true"
+            />
+            <ProviderLogo
+              provider={s.providerId}
+              size={14}
+              className="shrink-0 text-text-muted"
+            />
+            <span className="flex-1 truncate">
+              {s.providerLabel}
+              {s.showAccountInLegend && s.providerUsername !== '—' ? (
+                <span className="text-text-dim"> · {s.providerUsername}</span>
+              ) : null}
+            </span>
+            <span
+              className="shrink-0 font-medium tabular-nums"
+              style={active ? { color: s.fill } : undefined}
+            >
+              {metric.fmt(value)}
+            </span>
+            <span className="w-12 shrink-0 text-right tabular-nums text-text-dim">
+              {pct}%
+            </span>
+          </li>
+        );
+      })}
     </ul>
   );
 }

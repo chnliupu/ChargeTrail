@@ -10,7 +10,7 @@ let app: import('express').Express;
 
 beforeAll(async () => {
   tmpDir = mkdtempSync(join(tmpdir(), 'es-setup-test-'));
-  process.env.DB_PATH = join(tmpDir, 'test.db');
+  process.env.DB_PATH = tmpDir;
   process.env.BETTER_AUTH_SECRET ??= 'test-secret-12345678901234567890';
   // No ADMIN_PASSWORD: env seeding must be skipped so the web setup flow owns
   // first-admin creation.

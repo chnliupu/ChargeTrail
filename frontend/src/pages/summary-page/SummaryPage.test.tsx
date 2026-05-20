@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Session } from '../../api/sessions';
@@ -241,8 +241,14 @@ describe('SummaryPage', () => {
       error: null,
     });
     render(<SummaryPage />);
-    expect(screen.getByText('Energy charged (kWh)')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Cost' }));
+    const heading = screen.getByText('Energy charged (kWh)');
+    // The "By connector" card also has Energy/Cost toggles, so scope the
+    // query to the main chart card to disambiguate.
+    const chartCard = heading.closest('[data-slot="card"]') as HTMLElement;
+    expect(heading).toBeInTheDocument();
+    await userEvent.click(
+      within(chartCard).getByRole('button', { name: 'Cost' }),
+    );
     expect(screen.getByText('Cost ($)')).toBeInTheDocument();
   });
 

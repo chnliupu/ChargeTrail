@@ -35,7 +35,7 @@ async function createAppWithSwaggerFlag(
 
 beforeAll(async () => {
   tmpDir = mkdtempSync(join(tmpdir(), 'es-app-test-'));
-  process.env.DB_PATH = join(tmpDir, 'test.db');
+  process.env.DB_PATH = tmpDir;
   process.env.BETTER_AUTH_SECRET ??= 'test-secret-12345678901234567890';
   process.env.ADMIN_USERNAME = 'admin';
   process.env.ADMIN_EMAIL = ADMIN_EMAIL;

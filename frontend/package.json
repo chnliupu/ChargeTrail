@@ -1,6 +1,6 @@
 {
-  "name": "electric-stats-frontend",
-  "version": "0.1.0",
+  "name": "chargetrail-frontend",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,8 +10,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "lint": "eslint .",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --check",
+    "format:fix": "prettier . --write"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

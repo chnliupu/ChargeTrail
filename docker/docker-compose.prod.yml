@@ -1,0 +1,75 @@
+# Production stack for ChargeTrail.
+#
+# Run from this directory:
+#   docker compose -f docker-compose.prod.yml up --build
+#
+# Env variables are inlined as examples below. Defaults match the host-dev
+# .env files; comment-out / uncomment lines as needed for your deployment.
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: backend-runtime
+    environment:
+      # --- runtime mode ---
+      NODE_ENV: production
+
+      # --- listen port (inside the container) ---
+      BACKEND_PORT: "3000"
+
+      # --- SQLite location; matches the named volume mount below ---
+      DB_PATH: /app/backend/data
+
+      # --- CORS / Better Auth allowed origin; change to your public URL ---
+      FRONTEND_ORIGIN: http://localhost:3001
+
+      # --- Better Auth signing secret (REQUIRED). Generate a strong random
+      # value, e.g.  openssl rand -base64 32  — never reuse the example. ---
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
+
+      # --- Better Auth base URL; defaults to http://localhost:3000 ---
+      # BETTER_AUTH_URL: http://localhost:3000
+
+      # --- Swagger UI at /api-docs; off by default in production ---
+      # SWAGGER_ENABLED: "true"
+
+      # --- Pino log level: trace|debug|info|warn|error|fatal|silent ---
+      # LOG_LEVEL: info
+
+      # --- First-run admin seed: if ADMIN_PASSWORD is set the backend will
+      # provision an admin user on boot. Otherwise the web /setup flow
+      # handles the first admin. ---
+      # ADMIN_USERNAME: admin
+      # ADMIN_EMAIL: admin@example.com
+      # ADMIN_PASSWORD: ""
+    volumes:
+      - chargetrail-data:/app/backend/data
+    restart: unless-stopped
+    # No host port published: the SPA reaches the backend via the
+    # `frontend` service's nginx `/api/` proxy on the compose network.
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: frontend-runtime
+      args:
+        # Empty -> SPA uses relative /api/* paths so nginx proxies routing.
+        # If you need an absolute origin, set it here and rebuild the image
+        # (Vite inlines this at build time, not runtime).
+        VITE_API_ORIGIN: ""
+    # The frontend runtime is nginx and does not consume Vite env vars at
+    # runtime (Vite inlines them at build time). For symmetry with the dev
+    # compose, the relevant knobs would be:
+    #   VITE_API_ORIGIN: ""     # rebuild via build args.VITE_API_ORIGIN above
+    #   FRONTEND_PORT: "3001"   # nginx in this image listens on :80
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  chargetrail-data:

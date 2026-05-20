@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -294,6 +294,27 @@ describe('AppShell', () => {
 
     expect(
       screen.getByRole('button', { name: /^toggle sidebar$/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('opens the mobile sidebar from the responsive trigger', async () => {
+    mockMobileViewport();
+    const user = userEvent.setup();
+    renderAppShell('/data');
+
+    expect(
+      screen.queryByRole('dialog', { name: /^sidebar$/i }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^toggle sidebar$/i }));
+
+    const mobileSidebar = await screen.findByRole('dialog', {
+      name: /^sidebar$/i,
+    });
+    expect(mobileSidebar).toHaveAttribute('data-mobile', 'true');
+    expect(mobileSidebar).toHaveAttribute('data-state', 'open');
+    expect(
+      within(mobileSidebar).getByRole('link', { name: /summary/i }),
     ).toBeInTheDocument();
   });
 

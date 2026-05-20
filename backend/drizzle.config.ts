@@ -1,7 +1,13 @@
-import { resolve } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import type { Config } from 'drizzle-kit';
 
-const dbPath = resolve(process.env.DB_PATH ?? './data/electric-stats.db');
+const DB_FILE_NAME = 'chargetrail.db';
+const dbFolder = resolve(process.env.DB_PATH ?? './data');
+mkdirSync(dbFolder, {
+  recursive: true,
+});
+const dbPath = join(dbFolder, DB_FILE_NAME);
 
 export default {
   schema: './src/services/db/schema.ts',
